@@ -1,57 +1,59 @@
 const path = require("path");
 const json = require("@rollup/plugin-json");
 const { babel } = require("@rollup/plugin-babel");
-
-// 路径解析函数
-const resolveFile = (filePath) => path.resolve(__dirname, filePath);
-
-// 独立的插件配置函数
-const getJsonPlugin = () => json({ compact: true });
-
-const getBabelPlugin = () => babel({
+const resolveFile = function (filePath) {
+  return path.join(__dirname, filePath);
+};
+const plugins = [
+  json({
+    compact: true,
+  }),
+  babel({
     extensions: [".js", ".ts"],
     babelHelpers: "bundled",
     presets: [
-        [
-            "@babel/env",
-            {
-                targets: {
-                    browsers: ["> 1%", "last 2 versions", "not ie <= 8"],
-                },
-            },
-        ],
+      [
+        "@babel/env",
+        {
+          targets: {
+            browsers: ["> 1%", "last 2 versions", "not ie <= 8"],
+          },
+        },
+      ],
     ],
-});
-
-// 生成通用插件配置数组
-const getPlugins = () => [
-    getJsonPlugin(),
-    getBabelPlugin()
+  }),
 ];
-
-// 输出配置的生成器函数
-const createOutputConfig = (fileName, format) => ({
-    file: resolveFile(`../dist/${fileName}`),
-    format,
-    name: format === "iife" ? "monitor" : undefined, // 仅在 iife 格式中使用 name 属性
-    sourcemap: true,
-});
-
-// Rollup 配置
 module.exports = [
-    {
-        plugins: getPlugins(),
-        input: resolveFile("../src/webEyeSDK.js"),
-        output: createOutputConfig("monitor.js", "iife"),
+  {
+    plugins,
+    input: resolveFile("../src/webEyeSDK.js"),
+    output: {
+      file: resolveFile("../dist/monitor.js"),
+      format: "iife",
+      name: "monitor",
+      sourcemap: true,
+      exports: "named", // 添加这一行
     },
-    {
-        plugins: getPlugins(),
-        input: resolveFile("../src/webEyeSDK.js"),
-        output: createOutputConfig("monitor.esm.js", "esm"),
+  },
+  {
+    plugins,
+    input: resolveFile("../src/webEyeSDK.js"),
+    output: {
+      file: resolveFile("../dist/monitor.esm.js"),
+      format: "esm",
+      name: "monitor",
+      sourcemap: true,
     },
-    {
-        plugins: getPlugins(),
-        input: resolveFile("../src/webEyeSDK.js"),
-        output: createOutputConfig("monitor.cjs.js", "cjs"),
+  },
+  {
+    plugins,
+    input: resolveFile("../src/webEyeSDK.js"),
+    output: {
+      file: resolveFile("../dist/monitor.cjs.js"),
+      format: "cjs",
+      name: "monitor",
+      sourcemap: true,
+      exports: "named", // 添加这一行
     },
+  },
 ];

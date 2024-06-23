@@ -36,11 +36,15 @@ export default function error() {
     };
     // todo 发送错误信息
     lazyReportBatch(reportData);
+    // 阻止浏览器显示默认的错误提示
+    return true; // 返回 true 表示你已经处理了这个错误，不要显示默认的提示
   };
   // 捕获promise错误  asyn await
   window.addEventListener(
     "unhandledrejection",
     function (e) {
+      // 阻止浏览器显示默认的错误提示
+      e.preventDefault();
       const reportData = {
         type: "error",
         subType: "promise",
